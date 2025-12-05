@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Price Comparator</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Price Comparator</h2>
+        <input id="productUrl" placeholder="Paste product URL">
+        <button id="fetchPrice">Fetch Price</button>
+
+        <div id="results" class="hidden">
+            <div class="result">
+                <h3 id="siteName"></h3>
+                <p><strong>Title:</strong> <span id="productTitle"></span></p>
+                <p><strong>Price:</strong> <span id="productPrice"></span></p>
+                <p><strong>Link:</strong> <a id="productLink" href="#" target="_blank">Go to product</a></p>
+            </div>
+        </div>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
