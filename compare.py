@@ -1,12 +1,22 @@
 def comparePrices(products):
     if not products:
-        return []
+        return {"lowest": None, "highest": None}
     
     def parse_price(p):
-        return float(p['price'].replace("LKR","").replace(",","").strip())
+        price_str = p.get('price', '').replace("LKR", "").replace("Rs.", "").replace(",", "").strip()
+        try:
+            return float(price_str)
+        except ValueError:
+            return float('inf')  # Treat invalid/missing prices as infinitely high
     
-    min_price_product = min(products,key=parse_price)
-    max_price_product = max(products,key=parse_price)
+    # Filter out products that have no valid numeric price
+    valid_products = [p for p in products if parse_price(p) != float('inf')]
+    
+    if not valid_products:
+        return {"lowest": None, "highest": None}
+    
+    min_price_product = min(valid_products, key=parse_price)
+    max_price_product = max(valid_products, key=parse_price)
 
     return {
         "lowest": min_price_product,
