@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(
-        `${BACKEND_URL}/compare?urls=${encodeURIComponent(compareUrl)}`
+        `${BACKEND_URL}/compare?url=${encodeURIComponent(compareUrl)}`
       );
       const data = await response.json();
       displayResults(data);
