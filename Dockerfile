@@ -5,6 +5,7 @@ FROM python:3.12-slim
 RUN apt-get update && apt-get install -y \
     wget curl git libnss3 libatk-bridge2.0-0 libgtk-3-0 libx11-xcb1 \
     libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libgbm1 libasound2 \
+    fonts-liberation libappindicator3-1 xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -17,12 +18,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Install Playwright browsers
-RUN python -m playwright install
+# Install ONLY Chromium (faster, avoids deploy timeout)
+RUN python -m playwright install chromium
 
 # Expose port for FastAPI
 EXPOSE 8080
 
-# Command to run backend
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
+# Run app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
