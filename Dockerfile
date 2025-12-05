@@ -25,8 +25,6 @@ COPY . .
 # Install only Chromium (faster)
 RUN python -m playwright install chromium
 
-# Optional: set Playwright browser path inside container
-ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
 
 EXPOSE 8080
 
