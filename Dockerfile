@@ -30,4 +30,4 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 EXPOSE 8080
 
 # Run backend
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8080"]
