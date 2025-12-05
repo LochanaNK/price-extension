@@ -13,8 +13,11 @@ def scrapeAliexpress(url):
         )
         page = context.new_page()
         page.goto(url, wait_until="networkidle", timeout=60000)
-
-        page.wait_for_selector("span[class*='price-default--current']", timeout=10000)
+        try:
+            
+            page.wait_for_selector("span[class*='price-default--current']", timeout=10000)
+        except:
+            price ="not found"
 
         title_el = page.locator("h1[data-pl='product-title']")
         title = title_el.inner_text().strip() if title_el else "N/A"
