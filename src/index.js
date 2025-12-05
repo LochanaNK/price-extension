@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const fetchBtn = document.getElementById("fetchPrice");
   const resultsDiv = document.getElementById("results");
 
-  const BACKEND_URL = "https://price-extension.fly.dev/";
+  const BACKEND_URL = "https://price-extension.onrender.com";
 
   // Sanitize URL to remove unnecessary query params
   function sanitizeUrl(url) {
