@@ -22,39 +22,55 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    resultsDiv.innerHTML = items.map(item => `
+    resultsDiv.innerHTML = items
+      .map(
+        (item) => `
       <div>
         <p><strong>Platform:</strong> ${item.platform}</p>
         <p><strong>Title:</strong> ${item.title || item.name}</p>
         <p><strong>Price:</strong> ${item.price}</p>
-        <p><strong>Link:</strong> <a href="${item.link}" target="_blank">${item.link}</a></p>
+        <p><strong>Link:</strong> <a href="${item.link}" target="_blank">${
+          item.link
+        }</a></p>
       </div>
-    `).join("");
+    `
+      )
+      .join("");
   }
 
   // Fetch price comparison from backend
   async function fetchPrice(url) {
     const sanitized = sanitizeUrl(url);
 
-    // Determine the other platform to compare
     let compareUrl = sanitized;
     if (sanitized.includes("aliexpress.com")) {
       compareUrl = `${sanitized},daraz_search_placeholder`;
     } else if (sanitized.includes("daraz.lk")) {
-      compareUrl = `${sanitized},aliexpress_search_placeholder`; 
+      compareUrl = `${sanitized},aliexpress_search_placeholder`;
     }
 
+    const loading = document.getElementById("loading");
+    const resultsDiv = document.getElementById("results");
+
+    // Show loading spinner
+    loading.classList.remove("hidden");
+    resultsDiv.innerHTML = "";
+
     try {
-      const response = await fetch(`${BACKEND_URL}/compare?urls=${encodeURIComponent(compareUrl)}`);
+      const response = await fetch(
+        `${BACKEND_URL}/compare?urls=${encodeURIComponent(compareUrl)}`
+      );
       const data = await response.json();
       displayResults(data);
     } catch (err) {
       console.error(err);
       resultsDiv.innerHTML = `<p style="color:red">Error fetching price</p>`;
+    } finally {
+      // Hide loading spinner
+      loading.classList.add("hidden");
     }
   }
-
-
+  
   fetchBtn.addEventListener("click", () => {
     const url = input.value.trim();
     if (url) fetchPrice(url);

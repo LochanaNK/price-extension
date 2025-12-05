@@ -1,35 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Price Comparator</title>
-  <style>
-    body {
-      min-width: 320px;
-      min-height: 250px;
-      font-family: Arial, sans-serif;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    input, button {
-      width: 100%;
-      margin-top: 5px;
-      padding: 5px;
-      box-sizing: border-box;
-    }
-    #results div {
-      margin-bottom: 10px;
-      padding: 5px;
-      border-bottom: 1px solid #ccc;
-    }
-  </style>
-</head>
-<body>
-  <h2>Price Comparator</h2>
-  <input id="productUrl" placeholder="Paste product URL" />
-  <button id="fetchPrice">Fetch Price</button>
-  <div id="results"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Price Comparator</title>
+    <style>
+      body {
+        min-width: 320px;
+        min-height: 250px;
+        font-family: Arial, sans-serif;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      input,
+      button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 5px;
+        box-sizing: border-box;
+      }
+      #results div {
+        margin-bottom: 10px;
+        padding: 5px;
+        border-bottom: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Price Comparator</h2>
+    <input id="productUrl" placeholder="Paste product URL" />
+    <button id="fetchPrice">Fetch Price</button>
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+    </div>
+    <div id="results"></div>
 
-  <script src="index.js"></script>
-</body>
+    <script src="index.js"></script>
+  </body>
 </html>
