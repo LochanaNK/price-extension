@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query
 from scraper import scrapeAliexpress, scrapeDaraz, searchDaraz, searchAliexpress
-from compare import compare_prices
+from compare import comparePrices
 
 app = FastAPI()
 
@@ -44,5 +44,5 @@ def compare(url: str = Query(..., description="Single product URL for cross-plat
         return {"error": "Unsupported site"}
 
     # Compare prices
-    result = compare_prices(scraped_items)
+    result = comparePrices(scraped_items)
     return result
