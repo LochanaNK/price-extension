@@ -1,7 +1,7 @@
 # Base image
 FROM python:3.12-slim
 
-# Install system deps for Playwright / Chromium
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     wget curl git \
     libnss3 libatk-bridge2.0-0 libgtk-3-0 libx11-xcb1 \
@@ -12,20 +12,22 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install Python deps
+# Copy Python dependencies and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Playwright dependencies
+RUN playwright install-deps
 
 # Copy app
 COPY . .
 
-# Install only Chromium to speed build
+# Install only Chromium (faster)
 RUN python -m playwright install chromium
 
-# Let Playwright know browsers path
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+# Optional: set Playwright browser path inside container
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
 
 EXPOSE 8080
 
-# Use the actual module that defines app object
 CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8080"]
