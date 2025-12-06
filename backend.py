@@ -1,48 +1,38 @@
-from fastapi import FastAPI, Query
-from scraper import scrapeAliexpress, scrapeDaraz, searchDaraz, searchAliexpress
-from compare import comparePrices
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from scraper import scrapeAliexpress, scrapeDaraz
 
 app = FastAPI()
 
-@app.get("/scrape")
-def scrape(url: str = Query(..., description="Product URL")):
-    if "aliexpress.com" in url:
-        data = scrapeAliexpress(url)
-    elif "daraz.lk" in url:
-        data = scrapeDaraz(url)
-    else:
-        return {"error": "Unsupported site"}
-    return data
+# CORS for your extension
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/")
+def home():
+    return {"status": "OK", "message": "Price Scraper Backend Running"}
+
 
 @app.get("/compare")
-def compare(url: str = Query(..., description="Single product URL for cross-platform comparison")):
-    scraped_items = []
+def compare(request: Request):
+    url = request.query_params.get("url")
 
-    if "aliexpress.com" in url:
-        # Scrape AliExpress product
-        ali_result = scrapeAliexpress(url)
-        scraped_items.append(ali_result)
+    if not url:
+        return {"error": "Missing ?url="}
 
-        # Search Daraz for the same product
-        daraz_url = searchDaraz(ali_result["title"])
-        if daraz_url:
-            daraz_result = scrapeDaraz(daraz_url)
-            scraped_items.append(daraz_result)
+    # Identify site
+    if "aliexpress" in url:
+        ali = scrapeAliexpress(url)
+        return {"results": [ali]}
 
-    elif "daraz.lk" in url:
-        # Scrape Daraz product
-        daraz_result = scrapeDaraz(url)
-        scraped_items.append(daraz_result)
+    if "daraz" in url:
+        da = scrapeDaraz(url)
+        return {"results": [da]}
 
-        # Search AliExpress for the same product
-        ali_url = searchAliexpress(daraz_result["title"])
-        if ali_url:
-            ali_result = scrapeAliexpress(ali_url)
-            scraped_items.append(ali_result)
-
-    else:
-        return {"error": "Unsupported site"}
-
-    # Compare prices
-    result = comparePrices(scraped_items)
-    return result
+    return {"error": "Unsupported site"}

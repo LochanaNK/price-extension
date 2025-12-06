@@ -1,96 +1,89 @@
 from playwright.sync_api import sync_playwright
 
-# ----------------- Scrapers -----------------
+# =============== COMMON PLAYWRIGHT LAUNCH ===============
+def launch_browser(p):
+    return p.chromium.launch(
+        headless=True,
+        args=[
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--disable-gpu",
+            "--disable-blink-features=AutomationControlled"
+        ]
+    )
+
+
+# =============== ALIEXPRESS SCRAPER ===============
 def scrapeAliexpress(url):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True,
-        args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
-        )
+        browser = launch_browser(p)
         context = browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            locale="en-LK",
-            extra_http_headers={"accept-language": "en-LK,en;q=0.9"}
+            locale="en-US",
         )
         page = context.new_page()
-        page.goto(url, wait_until="networkidle", timeout=60000)
+
         try:
-            
-            page.wait_for_selector("span[class*='price-default--current']", timeout=10000)
+            page.goto(url, wait_until="networkidle", timeout=90000)
         except:
-            price ="not found"
+            return {"platform": "AliExpress", "title": "N/A", "price": "N/A", "link": url}
 
-        title_el = page.locator("h1[data-pl='product-title']")
-        title = title_el.inner_text().strip() if title_el else "N/A"
+        # ----- Title -----
+        title = "N/A"
+        try:
+            page.wait_for_selector("h1[data-pl='product-title']", timeout=30000)
+            title = page.locator("h1[data-pl='product-title']").first.inner_text().strip()
+        except:
+            try:
+                # backup selector
+                title = page.title().strip()
+            except:
+                pass
 
-        price_el = page.locator("span[class*='price-default--current']")
-        price = price_el.first.inner_text().strip() if price_el else "N/A"
+        # ----- Price -----
+        price = "N/A"
+        try:
+            page.wait_for_selector("span[class*='price-default--current']", timeout=20000)
+            price = page.locator("span[class*='price-default--current']").first.inner_text().strip()
+        except:
+            pass
 
         context.close()
         browser.close()
         return {"platform": "AliExpress", "title": title, "price": price, "link": url}
 
 
+# =============== DARAZ SCRAPER ===============
 def scrapeDaraz(url):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True,
-        args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
-        )
+        browser = launch_browser(p)
         context = browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             locale="en-LK",
-            extra_http_headers={"accept-language": "en-LK,en;q=0.9"}
         )
         page = context.new_page()
-        page.goto(url, wait_until="load", timeout=60000)
 
-        page.wait_for_selector("h1.pdp-mod-product-badge-title", timeout=10000)
-        page.wait_for_selector("span.pdp-price.pdp-price_type_normal", timeout=10000)
+        try:
+            page.goto(url, wait_until="networkidle", timeout=90000)
+        except:
+            return {"platform": "Daraz", "title": "N/A", "price": "N/A", "link": url}
 
-        title_el = page.locator("h1.pdp-mod-product-badge-title")
-        title = title_el.first.inner_text().strip() if title_el else "N/A"
+        # ----- Title -----
+        title = "N/A"
+        try:
+            page.wait_for_selector("h1.pdp-mod-product-badge-title", timeout=30000)
+            title = page.locator("h1.pdp-mod-product-badge-title").first.inner_text().strip()
+        except:
+            pass
 
-        price_el = page.locator("span.pdp-price.pdp-price_type_normal")
-        price = price_el.first.inner_text().strip() if price_el else "N/A"
+        # ----- Price -----
+        price = "N/A"
+        try:
+            page.wait_for_selector("span.pdp-price.pdp-price_type_normal", timeout=20000)
+            price = page.locator("span.pdp-price.pdp-price_type_normal").first.inner_text().strip()
+        except:
+            pass
 
         context.close()
         browser.close()
         return {"platform": "Daraz", "title": title, "price": price, "link": url}
-
-
-# ----------------- Cross-Platform Search -----------------
-def searchDaraz(keywords):
-    """Search Daraz with Playwright and return first product URL"""
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        query = "+".join(keywords.split()[:5])
-        search_url = f"https://www.daraz.lk/catalog/?q={query}"
-        page.goto(search_url, wait_until="networkidle", timeout=60000)
-
-        try:
-            first_link = page.locator("a[data-qa-locator='product-item']").first
-            href = first_link.get_attribute("href")
-            return "https://www.daraz.lk" + href if href else None
-        except:
-            return None
-        finally:
-            browser.close()
-
-
-def searchAliexpress(keywords):
-    """Search AliExpress with Playwright and return first product URL"""
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        query = "+".join(keywords.split()[:5])
-        search_url = f"https://www.aliexpress.com/wholesale?SearchText={query}"
-        page.goto(search_url, wait_until="networkidle", timeout=60000)
-
-        try:
-            first_link = page.locator("a[href*='/item/']").first
-            href = first_link.get_attribute("href")
-            return "https:" + href if href else None
-        except:
-            return None
-        finally:
-            browser.close()
